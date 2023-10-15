@@ -1,12 +1,14 @@
 import {BOARD_SIZE, IBoard} from 'core/types/IBoard';
 import {FC} from 'react';
 import styled from 'styled-components';
-import {IShip} from 'core/types/IShip';
+import {IPoint, IShip} from 'core/types/IShip';
 import {CellState} from 'core/types/CellState';
 
 interface BoardProps {
     board: IBoard;
-    ships: IShip[];
+    ships: IShip[] | null;
+    makeMove?: (p: IPoint) => void;
+    canMakeMove?: boolean;
 }
 
 const StyledBoard = styled.ul`
@@ -17,7 +19,10 @@ const StyledBoard = styled.ul`
   grid-auto-rows: 1fr;
 `;
 
-const StyledCell = styled.li<{ $hasShip: boolean; }>`
+const StyledCell = styled.li<{ $hasShip: boolean; $clickable: boolean; }>`
+  cursor: pointer;
+  pointer-events: ${props => props.$clickable ? 'all' : 'none'};
+  min-width: 30px;
   position: relative;
   aspect-ratio: 1;
   border: 1px solid gray;
@@ -26,7 +31,7 @@ const StyledCell = styled.li<{ $hasShip: boolean; }>`
   background-color: ${props => props.$hasShip ? 'black' : 'unset'};
 `;
 
-const Cross = styled.div`
+const Cross = styled.div<{$color: string}>`
   position: absolute;
   width: 100%;
   height: 100%;
@@ -40,7 +45,7 @@ const Cross = styled.div`
     transform: translateX(-50%);
     width: 5px;
     height: 100%;
-    background-color: pink;
+    background-color: ${props => props.$color};
   }
 
   &:after {
@@ -51,7 +56,7 @@ const Cross = styled.div`
     transform: translateY(-50%);
     width: 100%;
     height: 5px;
-    background-color: pink;
+    background-color: ${props => props.$color};
   }
 `;
 
@@ -73,28 +78,49 @@ const Dot = styled.div`
   }
 `;
 
-const Board: FC<BoardProps> = ({board, ships}) => {
+// todo memoise
+const Board: FC<BoardProps> = ({board, ships, makeMove, canMakeMove = false}) => {
     const shipField = Array.from(Array(BOARD_SIZE), () => Array(BOARD_SIZE).fill(false));
-    for (const ship of ships) {
-        for (let i = ship.position.start.row; i <= ship.position.end.row; i++) {
-            for (let j = ship.position.start.col; j <= ship.position.end.col; j++) {
-                shipField[i][j] = true;
+    const sunkField = Array.from(Array(BOARD_SIZE), () => Array(BOARD_SIZE).fill(false));
+    if (ships) {
+        for (const ship of ships) {
+            for (let i = ship.position.start.row; i <= ship.position.end.row; i++) {
+                for (let j = ship.position.start.col; j <= ship.position.end.col; j++) {
+                    shipField[i][j] = true;
+                    if (ship.decksHit === ship.size) {
+                        sunkField[i][j] = true;
+                    }
+                }
             }
+        }
+    }
+
+    function handleClick(row: number, col: number) {
+        if (typeof makeMove === 'function') {
+            makeMove({row, col});
         }
     }
 
     function getCellSymbol(state: CellState) {
         switch (state) {
-            case CellState.Hit: case CellState.Sunk: return <Cross />
-            case CellState.Miss: return <Dot />
-            default: return null;
+            case CellState.Hit:
+                return <Cross $color="pink" />;
+            case CellState.Miss:
+                return <Dot />;
+            default:
+                return null;
         }
     }
 
     return (
         <StyledBoard>{board.map((row, i) => row.map((cell, j) =>
-            <StyledCell key={String(i) + j} $hasShip={shipField[i][j]}>
-                {getCellSymbol(board[i][j])}
+            <StyledCell
+                key={String(i) + j}
+                $hasShip={shipField[i][j]}
+                $clickable={canMakeMove && cell === CellState.Default}
+                onClick={() => handleClick(i, j)}
+            >
+                {sunkField[i][j] ? <Cross $color="red" /> : getCellSymbol(board[i][j])}
             </StyledCell>
         ))}</StyledBoard>
     );
