@@ -1,0 +1,41 @@
+{
+  "gameMode": {
+    "onePlayer": "Против компьютера",
+    "twoPlayers": "Два игрока",
+    "onlineGame": "Онлайн игра"
+  },
+  "inputYourName": "Введите Ваше имя:",
+  "arrangeShipsRandomly": "Расставить корабли случайно",
+  "next": "Далее",
+  "startGame": "Начать игру",
+  "back": "Назад",
+  "player": "Игрок",
+  "finishGame": "Закончить игру",
+  "rules": "Правила",
+  "newGame": "Новая игра",
+  "backToMain": "На главную",
+  "moving": "Ходит",
+  "winner": "Победитель",
+  "finishGameEarly": "Завершить игру досрочно",
+  "confirmDefeat": "Внимание! В данном случае Вам будет засчитано поражение.",
+  "drawBecauseFinishedEarly": "Ничья - игра была завершена досрочо",
+  "shootMode": {
+    "oneByOne": "Стрельба строго по очереди",
+    "untilMiss": "Стрельба до промаха"
+  },
+  "ok": "Ок",
+  "showShips": "Показать корабли",
+  "hideShips": "Спрятать корабли",
+  "cancel": "Отменить",
+  "computer": "Компьютер",
+  "home": {
+    "welcome": "Добро пожаловать в Battleship Online!"
+  },
+  "history": "История игр",
+  "play": "Играть",
+  "clear": "Очистить",
+  "mode": "Режим",
+  "noHistoryYet": "Игры не найдены",
+  "battleship": "Морской бой",
+  "letters": ["а", "б", "в", "г", "д", "е", "ж", "з", "и", "к"]
+}

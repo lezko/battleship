@@ -1,37 +1,52 @@
-import {BOARD_SIZE, IBoard} from 'core/types/IBoard';
+import {BOARD_SIZE} from 'core/types/Board';
 import {FC} from 'react';
-import styled from 'styled-components';
-import {IPoint, IShip} from 'core/types/IShip';
+import styled, {useTheme} from 'styled-components';
 import {CellState} from 'core/types/CellState';
+import {AppTheme} from 'AppTheme';
+import {Player} from 'core/types/Player';
+import {useGameInfo} from 'store/gameInfoSlice';
+import {Point} from 'core/types/Ship';
+import lang from 'language.json';
+
+export const MIN_CELL_SIZE = 25;
 
 interface BoardProps {
-    board: IBoard;
-    ships: IShip[] | null;
-    makeMove?: (p: IPoint) => void;
-    canMakeMove?: boolean;
+    player: Player;
+    makeMove?: (point: Point) => void;
+    shipsVisible: boolean;
+    canMakeMove: boolean;
 }
 
-const StyledBoard = styled.ul`
-  max-width: 500px;
-  border: 2px solid black;
+const StyledBoard = styled.ul<{ $borderColor: string; }>`
+  margin: 0 auto;
+  border: 1px solid ${props => props.$borderColor};
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  grid-template-columns: repeat(${BOARD_SIZE + 1}, 1fr);
   grid-auto-rows: 1fr;
 `;
 
-const StyledCell = styled.li<{ $hasShip: boolean; $clickable: boolean; }>`
+export const Cell = styled.li<{
+    $hasShip: boolean;
+    $clickable: boolean;
+    $borderColor: string;
+    $size?: number;
+    $color?: string;
+    $minSize?: number
+}>`
   cursor: pointer;
   pointer-events: ${props => props.$clickable ? 'all' : 'none'};
-  min-width: 30px;
+  width: ${props => props.$size ? props.$size + 'px' : 'unset'};
+  min-width: ${props => props.$minSize ? props.$minSize + 'px' : 'unset'};
   position: relative;
   aspect-ratio: 1;
-  border: 1px solid gray;
+  border: 1px solid ${props => props.$borderColor};
   display: grid;
   place-content: center;
-  background-color: ${props => props.$hasShip ? 'black' : 'unset'};
+  color: ${props => props.$color || 'inherit'};
+  background-color: ${props => props.$hasShip ? props.theme.color.ship : 'unset'};
 `;
 
-const Cross = styled.div<{$color: string}>`
+export const Cross = styled.div<{ $color: string }>`
   position: absolute;
   width: 100%;
   height: 100%;
@@ -60,7 +75,7 @@ const Cross = styled.div<{$color: string}>`
   }
 `;
 
-const Dot = styled.div`
+export const Dot = styled.div`
   position: absolute;
   width: 100%;
   height: 100%;
@@ -74,22 +89,21 @@ const Dot = styled.div`
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background-color: green;
+    background-color: ${props => props.theme.color.defaultDot};
   }
 `;
 
 // todo memoise
-const Board: FC<BoardProps> = ({board, ships, makeMove, canMakeMove = false}) => {
-    const shipField = Array.from(Array(BOARD_SIZE), () => Array(BOARD_SIZE).fill(false));
-    const sunkField = Array.from(Array(BOARD_SIZE), () => Array(BOARD_SIZE).fill(false));
-    if (ships) {
-        for (const ship of ships) {
+const Board: FC<BoardProps> = ({player, makeMove, shipsVisible, canMakeMove}) => {
+    const {ships, boards, currentPlayer, finishedEarly} = useGameInfo();
+    const board = boards[player];
+
+    const shipField = Array.from(Array(BOARD_SIZE + 1), () => Array(BOARD_SIZE + 1).fill(false));
+    if (shipsVisible) {
+        for (const ship of ships[player]) {
             for (let i = ship.position.start.row; i <= ship.position.end.row; i++) {
                 for (let j = ship.position.start.col; j <= ship.position.end.col; j++) {
-                    shipField[i][j] = true;
-                    if (ship.decksHit === ship.size) {
-                        sunkField[i][j] = true;
-                    }
+                    shipField[i + 1][j + 1] = true;
                 }
             }
         }
@@ -101,10 +115,14 @@ const Board: FC<BoardProps> = ({board, ships, makeMove, canMakeMove = false}) =>
         }
     }
 
+    const theme = useTheme() as AppTheme;
+
     function getCellSymbol(state: CellState) {
         switch (state) {
+            case CellState.Sunk:
+                return <Cross $color={theme.color.sunkCross} />;
             case CellState.Hit:
-                return <Cross $color="pink" />;
+                return <Cross $color={theme.color.hitCross} />;
             case CellState.Miss:
                 return <Dot />;
             default:
@@ -113,16 +131,50 @@ const Board: FC<BoardProps> = ({board, ships, makeMove, canMakeMove = false}) =>
     }
 
     return (
-        <StyledBoard>{board.map((row, i) => row.map((cell, j) =>
-            <StyledCell
-                key={String(i) + j}
-                $hasShip={shipField[i][j]}
-                $clickable={canMakeMove && cell === CellState.Default}
-                onClick={() => handleClick(i, j)}
-            >
-                {sunkField[i][j] ? <Cross $color="red" /> : getCellSymbol(board[i][j])}
-            </StyledCell>
-        ))}</StyledBoard>
+        <StyledBoard
+            $borderColor={canMakeMove ? theme.color.currentPlayerBoardBorder : theme.color.boardBorder}
+        >
+            {shipField.map((row, i) => row.map((col, j) => {
+                let cell: CellState | null = null;
+                let symbol;
+                if (i > 0 && j > 0) {
+                    cell = board[i - 1][j - 1];
+                    symbol = getCellSymbol(cell);
+                } else if (i > 0 || j > 0) {
+                    if (i === 0) {
+                        symbol = (lang.letters[j - 1]).toUpperCase();
+                    } else {
+                        symbol = i;
+                    }
+                }
+                    return (
+                        <Cell
+                            key={String(i) + j}
+                            $minSize={MIN_CELL_SIZE}
+                            $borderColor={theme.color.boardBorder}
+                            $hasShip={shipField[i][j] || cell === CellState.Sunk}
+                            $clickable={canMakeMove && cell === CellState.Default}
+                            onClick={() => handleClick(i - 1, j - 1)}
+                            $color={cell === null ? theme.color.hover : undefined}
+                        >
+                            {symbol}
+                        </Cell>
+                    );
+                }
+            ))}
+            {/*{board.map((row, i) => row.map((cell, j) =>*/}
+            {/*    <Cell*/}
+            {/*        key={String(i) + j}*/}
+            {/*        $minSize={MIN_CELL_SIZE}*/}
+            {/*        $borderColor={theme.color.boardBorder}*/}
+            {/*        $hasShip={shipField[i][j] || board[i][j] === CellState.Sunk}*/}
+            {/*        $clickable={canMakeMove && cell === CellState.Default}*/}
+            {/*        onClick={() => handleClick(i, j)}*/}
+            {/*    >*/}
+            {/*        {getCellSymbol(board[i][j])}*/}
+            {/*    </Cell>*/}
+            {/*))}*/}
+        </StyledBoard>
     );
 };
 

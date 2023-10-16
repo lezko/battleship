@@ -1,31 +1,45 @@
-import {IPoint, IShip} from 'core/types/IShip';
+import {getSunkShipsCount, Point, Ship, shipsTotal} from 'core/types/Ship';
 import {CellState} from 'core/types/CellState';
-import {IBoard} from 'core/types/IBoard';
-import {generateBoard} from 'core/generateBoard';
+import {Board, BOARD_SIZE} from 'core/types/Board';
 import {Player} from 'core/types/Player';
 import {getOpponent} from 'core/getOpponent';
+import {clone} from 'utils/clone';
 
-export interface MoveResult {
-    board: IBoard;
-    ships: IShip[];
-    winner?: Player;
-}
+function markShipSunk(board: Board, ship: Ship) {
 
-function clone<T>(value: T) {
-    return JSON.parse(JSON.stringify(value)) as T;
+    for (let i = ship.position.start.row - 1; i <= ship.position.end.row + 1; i++) {
+        for (let j = ship.position.start.col - 1; j <= ship.position.end.col + 1; j++) {
+            if (
+                (ship.position.start.row <= i && i <= ship.position.end.row) &&
+                (ship.position.start.col <= j && j <= ship.position.end.col)
+            ) {
+                board[i][j] = CellState.Sunk;
+            } else if ((0 <= i && i < BOARD_SIZE) && (0 <= j && j < BOARD_SIZE)) {
+                board[i][j] = CellState.Miss;
+            }
+        }
+    }
 }
 
 export class OfflineGame {
 
-    private readonly ships: [IShip[], IShip[]];
-    private readonly boards = [generateBoard(), generateBoard()];
-    private shipsSunk = [0, 0];
+    private readonly ships: [Ship[], Ship[]];
+    private readonly boards: [Board, Board];
+    private readonly shipsSunk: [number, number];
+    private winner: Player | null = null;
 
-    constructor(firstPlayerShips: IShip[], secondPlayerShips: IShip[]) {
-        this.ships = [firstPlayerShips, secondPlayerShips];
+    constructor(ships: [Ship[], Ship[]], boards: [Board, Board]) {
+        this.ships = ships;
+        this.boards = boards;
+        this.shipsSunk = [getSunkShipsCount(ships[Player.First]), getSunkShipsCount(ships[Player.Second])];
+        if (this.shipsSunk[Player.First] === shipsTotal) {
+            this.winner = Player.Second;
+        } else if (this.shipsSunk[Player.Second] === shipsTotal) {
+            this.winner = Player.First;
+        }
     }
 
-    public makeMove(p: IPoint, player: Player): MoveResult {
+    public makeMove(p: Point, player: Player) {
         const opponent = getOpponent(player);
         const opponentShips = this.ships[opponent];
         const opponentBoard = this.boards[opponent];
@@ -35,8 +49,9 @@ export class OfflineGame {
                 for (let j = ship.position.start.col; j <= ship.position.end.col; j++) {
                     if (i === p.row && j === p.col && opponentBoard[i][j] !== CellState.Hit) {
                         ship.decksHit++;
-                        opponentBoard[i][j] = ship.decksHit < ship.size ? CellState.Hit : CellState.Sunk;
-                        if (opponentBoard[i][j] === CellState.Sunk) {
+                        opponentBoard[i][j] = CellState.Hit;
+                        if (ship.decksHit === ship.size) {
+                            markShipSunk(opponentBoard, ship);
                             this.shipsSunk[opponent]++;
                         }
                         shipHit = true;
@@ -54,15 +69,21 @@ export class OfflineGame {
                 opponentBoard[p.row][p.col] = CellState.Miss;
             }
         }
-        const moveResult: MoveResult = {board: clone(opponentBoard), ships: clone(opponentShips)};
-        if (this.shipsSunk[opponent] === 10) {
-            moveResult.winner = player;
+        if (this.shipsSunk[opponent] === shipsTotal) {
+            this.winner = player;
         }
-        return moveResult;
+    }
+
+    public getBoard(player: Player) {
+        return this.boards[player];
     }
 
     public getBoardCopy(player: Player) {
         return clone(this.boards[player]);
+    }
+
+    public getShips(player: Player) {
+        return this.ships[player];
     }
 
     public getShipsCopy(player: Player) {
@@ -71,5 +92,9 @@ export class OfflineGame {
 
     public getShipsSunk(player: Player) {
         return this.shipsSunk[player];
+    }
+
+    public getWinner(): Player | null {
+        return this.winner;
     }
 }
