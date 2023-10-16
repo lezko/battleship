@@ -1,21 +1,24 @@
 import ShipCount from 'components/ShipCount';
 import {Flex} from 'antd';
-import {getAliveShipsParams, Ship} from 'core/types/Ship';
+import {ShipParameters} from 'core/types/Ship';
 import {FC} from 'react';
 
 interface ShipSetProps {
-    ships: Ship[];
+    shipParams: ShipParameters;
 }
 
-const ShipSet: FC<ShipSetProps> = ({ships}) => {
-    const shipParams = getAliveShipsParams(ships);
+const ShipSet: FC<ShipSetProps> = ({shipParams}) => {
     return (
         <Flex
             justify="center"
             gap={20}
         >
             {Object.entries(shipParams).map(([size, count], i) =>
-                <ShipCount key={i} size={+size} count={count} />
+                <ShipCount
+                    key={i}
+                    size={+size}
+                    count={count}
+                />
             )}
         </Flex>
     );

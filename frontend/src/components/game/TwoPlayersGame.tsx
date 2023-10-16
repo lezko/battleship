@@ -2,7 +2,7 @@ import {useRef, useState} from 'react';
 import {OfflineGame} from 'core/game/OfflineGame';
 import {Player} from 'core/types/Player';
 import Board from 'components/Board';
-import {Point} from 'core/types/Ship';
+import {getAliveShipsParams, Point} from 'core/types/Ship';
 import {getOpponent} from 'core/getOpponent';
 import {setBoard, setGameInfo, setShips, useGameInfo} from 'store/gameInfoSlice';
 import {useAppDispatch} from 'store';
@@ -50,7 +50,7 @@ const TwoPlayersGame = () => {
 
         if (game.getWinner() !== null) {
             const history = getHistory();
-            history.push({
+            history.unshift({
                 gameMode,
                 gameShootMode,
                 playerNames,
@@ -131,7 +131,7 @@ const TwoPlayersGame = () => {
                     canMakeMove={gameInProgress && currentPlayer !== player}
                     player={player}
                     shipsVisible={shipsVisible || !gameInProgress}
-                    makeMove={(p) => makeMove(p, getOpponent(player))}
+                    onClick={(p) => makeMove(p, getOpponent(player))}
                 />
                 <Flex style={{marginTop: 10, marginBottom: 20}} justify="space-between" align="center">
                     <h4 style={{fontStyle: 'italic'}}>{playerNames[player]}</h4>
@@ -139,7 +139,7 @@ const TwoPlayersGame = () => {
                         {shipsVisibilityText}
                     </Button>}
                 </Flex>
-                <ShipSet ships={ships[player]} />
+                <ShipSet shipParams={getAliveShipsParams(ships[player])} />
             </div>
         );
     }
@@ -156,7 +156,7 @@ const TwoPlayersGame = () => {
             onOk() {
                 dispatch(setGameInfo({finishedEarly: true}));
                 const history = getHistory();
-                history.push({
+                history.unshift({
                     gameMode,
                     gameShootMode,
                     playerNames,

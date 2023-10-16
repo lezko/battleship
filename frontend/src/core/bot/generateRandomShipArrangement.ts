@@ -12,30 +12,37 @@ for (const size of Object.keys(shipParameters).map(Number)) {
     shipSizes.sort((a, b) => b - a);
 }
 
-// todo limit max number of random position attempts
-export function generateRandomShipArrangement(): Ship[] {
+export function checkCanPlaceShipWithOtherShips(p: ShipPosition, otherShips: Ship[]) {
     const field: boolean[][] = Array.from(Array(BOARD_SIZE), () => Array(BOARD_SIZE).fill(false));
-
-    function fillRange(p: ShipPosition) {
-        for (let i = p.start.row; i <= p.end.row; i++) {
-            for (let j = p.start.col; j <= p.end.col; j++) {
-                field[i][j] = true;
-            }
-        }
+    for (const ship of otherShips) {
+        fillRange(ship.position, field);
     }
+    return checkCanPlaceShip(p, field);
+}
 
-    function checkCanPlaceShip(p: ShipPosition) {
-        for (let i = p.start.row - 1; i <= p.end.row + 1; i++) {
-            for (let j = p.start.col - 1; j <= p.end.col + 1; j++) {
-                if ((0 <= i && i < BOARD_SIZE) && (0 <= j && i < BOARD_SIZE)) {
-                    if (field[i][j]) {
-                        return false;
-                    }
+export function checkCanPlaceShip(p: ShipPosition, field: boolean[][]) {
+    for (let i = p.start.row - 1; i <= p.end.row + 1; i++) {
+        for (let j = p.start.col - 1; j <= p.end.col + 1; j++) {
+            if ((0 <= i && i < BOARD_SIZE) && (0 <= j && i < BOARD_SIZE)) {
+                if (field[i][j]) {
+                    return false;
                 }
             }
         }
-        return true;
     }
+    return true;
+}
+
+export function fillRange(p: ShipPosition, field: boolean[][]) {
+    for (let i = p.start.row; i <= p.end.row; i++) {
+        for (let j = p.start.col; j <= p.end.col; j++) {
+            field[i][j] = true;
+        }
+    }
+}
+
+export function generateRandomShipArrangement(): Ship[] {
+    const field: boolean[][] = Array.from(Array(BOARD_SIZE), () => Array(BOARD_SIZE).fill(false));
 
     function tryPlaceShip(shipSize: number, p: Point): Ship | null {
         if (field[p.row][p.col]) {
@@ -60,8 +67,8 @@ export function generateRandomShipArrangement(): Ship[] {
             }
 
             const shipPosition = normalizeShipPosition({start: p, end: probablePoint});
-            if (checkCanPlaceShip(shipPosition)) {
-                fillRange(shipPosition);
+            if (checkCanPlaceShip(shipPosition, field)) {
+                fillRange(shipPosition, field);
                 return {
                     size: shipSize,
                     decksHit: 0,
@@ -109,7 +116,7 @@ export function generateRandomShipArrangement(): Ship[] {
     return ships;
 }
 
-function normalizeShipPosition(position: ShipPosition): ShipPosition {
+export function normalizeShipPosition(position: ShipPosition): ShipPosition {
     const p1 = position.start;
     const p2 = position.end;
     if (p1.row > p2.row) {

@@ -1,24 +1,20 @@
 import {Fragment, useEffect, useRef, useState} from 'react';
 import {OfflineGame} from 'core/game/OfflineGame';
-import {getAliveShipsParams, getSunkShipsCount, Point, shipParameters, shipsTotal} from 'core/types/Ship';
+import {getAliveShipsParams, Point} from 'core/types/Ship';
 import Board from 'components/Board';
 import {Player} from 'core/types/Player';
-import {random} from 'core/bot/random';
 import {calculateNextMove} from 'core/bot/calculateNextMove';
 import {setBoard, setGameInfo, setShips, useGameInfo} from 'store/gameInfoSlice';
 import {useAppDispatch} from 'store';
 import {clone} from 'utils/clone';
 import {GameShootMode} from 'core/types/GameShootMode';
 import {CellState} from 'core/types/CellState';
-import {Flex, Modal} from 'antd';
+import {Modal} from 'antd';
 import GameStatusPanel from 'components/GameStatusPanel';
 import lang from 'language.json';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faRobot} from '@fortawesome/free-solid-svg-icons';
-import {getFromLocalStorage} from 'utils/localStorage';
 import {getHistory, saveHistory} from 'core/types/History';
-import styled from 'styled-components';
-import ShipCount from 'components/ShipCount';
 import TwoBoardGrid from 'components/layout/TwoBoardGrid';
 import ShipSet from 'components/style/ShipSet';
 
@@ -49,6 +45,16 @@ const OnePlayerGame = () => {
                 dispatch(setGameInfo({currentPlayer: player}));
                 break;
             }
+            if (game.getWinner() !== null) {
+                const history = getHistory();
+                history.unshift({
+                    gameMode,
+                    gameShootMode,
+                    playerNames,
+                    winner: bot
+                });
+                saveHistory(history);
+            }
         }
     }
 
@@ -63,6 +69,17 @@ const OnePlayerGame = () => {
         if (gameShootMode === GameShootMode.OneByOne || game.getBoard(bot)[p.row][p.col] === CellState.Miss) {
             dispatch(setGameInfo({currentPlayer: bot}));
             makeBotMove();
+        }
+
+        if (game.getWinner() !== null) {
+            const history = getHistory();
+            history.unshift({
+                gameMode,
+                gameShootMode,
+                playerNames,
+                winner: player
+            });
+            saveHistory(history);
         }
     }
 
@@ -89,7 +106,7 @@ const OnePlayerGame = () => {
                 clearInterval(timerRef.current);
                 dispatch(setGameInfo({finishedEarly: true}));
                 const history = getHistory();
-                history.push({
+                history.unshift({
                     gameMode,
                     gameShootMode,
                     playerNames,
@@ -106,12 +123,12 @@ const OnePlayerGame = () => {
             <div>
                 <Board
                     player={p}
-                    shipsVisible={p === player}
+                    shipsVisible={p === player || !gameInProgress}
                     canMakeMove={gameInProgress && currentPlayer !== p}
-                    makeMove={p === bot ? makeMove : undefined}
+                    onClick={p === bot ? makeMove : undefined}
                 />
                 <h4 style={{fontStyle: 'italic', marginTop: 10, marginBottom: 20}}>{playerName}</h4>
-                <ShipSet ships={ships[p]} />
+                <ShipSet shipParams={getAliveShipsParams(ships[p])} />
             </div>
         );
     }

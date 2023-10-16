@@ -9,10 +9,14 @@ import {Button} from 'antd';
 const StyledList = styled.ul`
   display: flex;
   justify-content: space-between;
+  & > * + * {
+    margin-left: 10px;
+  }
   @media (max-width: 450px) {
     flex-direction: column;
     align-items: stretch;
     & > * + * {
+      margin-left: 0;
       margin-top: 10px;
     }
   }
@@ -20,6 +24,7 @@ const StyledList = styled.ul`
 
 const StyledItem = styled.li`
   cursor: pointer;
+  flex-grow: 1;
   border-radius: 3px;
   display: flex;
   align-items: center;
@@ -29,7 +34,7 @@ const GameModeMenu = () => {
     const gameModeNames = {
         [GameMode.OnePlayer]: lang.gameMode.onePlayer,
         [GameMode.TwoPlayers]: lang.gameMode.twoPlayers,
-        [GameMode.OnlineGame]: lang.gameMode.onlineGame,
+        // [GameMode.OnlineGame]: lang.gameMode.onlineGame,
     };
     const dispatch = useAppDispatch();
 

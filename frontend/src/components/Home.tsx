@@ -34,7 +34,7 @@ const Home = () => {
                 <Button onClick={() => setRulesModalOpen(true)}>{lang.rules}</Button>
             </Flex>
 
-            <h2 style={{textAlign: 'center', marginTop: 30, marginBottom: 10}}>{lang.play}</h2>
+            <h2 style={{textAlign: 'center', marginTop: 25, marginBottom: 10, fontSize: '1.4rem'}}>{lang.play}</h2>
 
             <ThinDiv>
                 <Select

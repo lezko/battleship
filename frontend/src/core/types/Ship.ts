@@ -53,3 +53,11 @@ export function getAliveShipsParams(ships: Ship[]): ShipParameters {
     }
     return result;
 }
+
+export function getRemainingShipsParams(ships: Ship[]): ShipParameters {
+    const result = clone(shipParameters);
+    for (const ship of ships) {
+        result[ship.size]--;
+    }
+    return result;
+}

@@ -7,14 +7,16 @@ import {Player} from 'core/types/Player';
 import {useGameInfo} from 'store/gameInfoSlice';
 import {Point} from 'core/types/Ship';
 import lang from 'language.json';
+import {GameStatus, useGameStatus} from 'store/gameStatusSlice';
 
 export const MIN_CELL_SIZE = 25;
 
 interface BoardProps {
     player: Player;
-    makeMove?: (point: Point) => void;
+    onClick?: (point: Point) => void;
     shipsVisible: boolean;
     canMakeMove: boolean;
+    markedCell?: Point;
 }
 
 const StyledBoard = styled.ul<{ $borderColor: string; }>`
@@ -31,7 +33,8 @@ export const Cell = styled.li<{
     $borderColor: string;
     $size?: number;
     $color?: string;
-    $minSize?: number
+    $minSize?: number;
+    $marked?: boolean;
 }>`
   cursor: pointer;
   pointer-events: ${props => props.$clickable ? 'all' : 'none'};
@@ -43,7 +46,7 @@ export const Cell = styled.li<{
   display: grid;
   place-content: center;
   color: ${props => props.$color || 'inherit'};
-  background-color: ${props => props.$hasShip ? props.theme.color.ship : 'unset'};
+  background-color: ${props => props.$hasShip ? props.theme.color.ship : props.$marked ? props.theme.color.markedCell : 'unset'};
 `;
 
 export const Cross = styled.div<{ $color: string }>`
@@ -94,8 +97,9 @@ export const Dot = styled.div`
 `;
 
 // todo memoise
-const Board: FC<BoardProps> = ({player, makeMove, shipsVisible, canMakeMove}) => {
+const Board: FC<BoardProps> = ({player, onClick, shipsVisible, canMakeMove, markedCell}) => {
     const {ships, boards, currentPlayer, finishedEarly} = useGameInfo();
+    const {status} = useGameStatus();
     const board = boards[player];
 
     const shipField = Array.from(Array(BOARD_SIZE + 1), () => Array(BOARD_SIZE + 1).fill(false));
@@ -110,8 +114,8 @@ const Board: FC<BoardProps> = ({player, makeMove, shipsVisible, canMakeMove}) =>
     }
 
     function handleClick(row: number, col: number) {
-        if (typeof makeMove === 'function') {
-            makeMove({row, col});
+        if (typeof onClick === 'function') {
+            onClick({row, col});
         }
     }
 
@@ -130,23 +134,25 @@ const Board: FC<BoardProps> = ({player, makeMove, shipsVisible, canMakeMove}) =>
         }
     }
 
+    const settingPlayer = status === GameStatus.SettingFirstPlayer || status === GameStatus.SettingSecondPlayer;
     return (
         <StyledBoard
-            $borderColor={canMakeMove ? theme.color.currentPlayerBoardBorder : theme.color.boardBorder}
+            $borderColor={(canMakeMove && !settingPlayer) ? theme.color.currentPlayerBoardBorder : theme.color.boardBorder}
         >
             {shipField.map((row, i) => row.map((col, j) => {
-                let cell: CellState | null = null;
-                let symbol;
-                if (i > 0 && j > 0) {
-                    cell = board[i - 1][j - 1];
-                    symbol = getCellSymbol(cell);
-                } else if (i > 0 || j > 0) {
-                    if (i === 0) {
-                        symbol = (lang.letters[j - 1]).toUpperCase();
-                    } else {
-                        symbol = i;
+                    let cell: CellState | null = null;
+                    let symbol;
+                    if (i > 0 && j > 0) {
+                        cell = board[i - 1][j - 1];
+                        symbol = getCellSymbol(cell);
+                    } else if (i > 0 || j > 0) {
+                        if (i === 0) {
+                            symbol = (lang.letters[j - 1]).toUpperCase();
+                        } else {
+                            symbol = i;
+                        }
                     }
-                }
+                    const marked = markedCell && markedCell.row === i - 1 && markedCell.col === j - 1;
                     return (
                         <Cell
                             key={String(i) + j}
@@ -154,6 +160,7 @@ const Board: FC<BoardProps> = ({player, makeMove, shipsVisible, canMakeMove}) =>
                             $borderColor={theme.color.boardBorder}
                             $hasShip={shipField[i][j] || cell === CellState.Sunk}
                             $clickable={canMakeMove && cell === CellState.Default}
+                            $marked={marked}
                             onClick={() => handleClick(i - 1, j - 1)}
                             $color={cell === null ? theme.color.hover : undefined}
                         >
@@ -162,18 +169,6 @@ const Board: FC<BoardProps> = ({player, makeMove, shipsVisible, canMakeMove}) =>
                     );
                 }
             ))}
-            {/*{board.map((row, i) => row.map((cell, j) =>*/}
-            {/*    <Cell*/}
-            {/*        key={String(i) + j}*/}
-            {/*        $minSize={MIN_CELL_SIZE}*/}
-            {/*        $borderColor={theme.color.boardBorder}*/}
-            {/*        $hasShip={shipField[i][j] || board[i][j] === CellState.Sunk}*/}
-            {/*        $clickable={canMakeMove && cell === CellState.Default}*/}
-            {/*        onClick={() => handleClick(i, j)}*/}
-            {/*    >*/}
-            {/*        {getCellSymbol(board[i][j])}*/}
-            {/*    </Cell>*/}
-            {/*))}*/}
         </StyledBoard>
     );
 };

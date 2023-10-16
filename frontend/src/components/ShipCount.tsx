@@ -1,4 +1,4 @@
-import {FC} from 'react';
+import React, {FC} from 'react';
 import styled, {useTheme} from 'styled-components';
 import {Flex} from 'antd';
 import {Cell} from 'components/Board';
@@ -18,10 +18,15 @@ const Ship = styled.div`
 `;
 
 const ShipCount: FC<ShipCountProps> = ({size, count}) => {
+    if (count === 0) {
+        return null;
+    }
     const theme = useTheme() as AppTheme;
+
     return (
         <Flex gap={5} vertical justify="center" align="center">
-            <Ship>{Array(size).fill(null).map((_, i) =>
+            <Ship
+            >{Array(size).fill(null).map((_, i) =>
                 <Cell
                     $hasShip={true}
                     $clickable={false}

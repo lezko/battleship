@@ -7,6 +7,7 @@ export interface AppTheme {
         hover: string;
         ship: string;
         hitCross: string;
+        markedCell: string;
         sunkCross: string;
         boardBorder: string;
         currentPlayerBoardBorder: string;
@@ -23,6 +24,7 @@ export const theme: AppTheme = {
         hover: '#dadada',
         ship: '#292929',
         hitCross: '#d2d24e',
+        markedCell: '#6c5656',
         boardBorder: 'gray',
         currentPlayerBoardBorder: '#d2d24e',
         sunkCross: '#d55b5b',

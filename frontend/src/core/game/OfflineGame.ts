@@ -6,7 +6,6 @@ import {getOpponent} from 'core/getOpponent';
 import {clone} from 'utils/clone';
 
 function markShipSunk(board: Board, ship: Ship) {
-
     for (let i = ship.position.start.row - 1; i <= ship.position.end.row + 1; i++) {
         for (let j = ship.position.start.col - 1; j <= ship.position.end.col + 1; j++) {
             if (
