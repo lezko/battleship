@@ -7,6 +7,7 @@ import TwoPlayersGame from 'components/game/TwoPlayersGame';
 import {useGameInfo} from 'store/gameInfoSlice';
 import styled from 'styled-components';
 import Home from 'components/Home';
+import OnlineGame from 'components/game/OnlineGame';
 
 const StyledApp = styled.div`
   padding-block: 15px;
@@ -22,7 +23,7 @@ const App = () => {
             case GameMode.TwoPlayers:
                 return <TwoPlayersGame />;
             case GameMode.OnlineGame:
-                return <>under development :)</>;
+                return <><OnlineGame /></>;
         }
     }
 

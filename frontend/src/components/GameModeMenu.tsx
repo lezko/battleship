@@ -34,7 +34,7 @@ const GameModeMenu = () => {
     const gameModeNames = {
         [GameMode.OnePlayer]: lang.gameMode.onePlayer,
         [GameMode.TwoPlayers]: lang.gameMode.twoPlayers,
-        // [GameMode.OnlineGame]: lang.gameMode.onlineGame,
+        [GameMode.OnlineGame]: lang.gameMode.onlineGame,
     };
     const dispatch = useAppDispatch();
 

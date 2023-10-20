@@ -7,6 +7,11 @@ import {theme} from 'AppTheme';
 import {Provider} from 'react-redux';
 import GlobalStyle from 'components/style/GlobalStyle';
 import AntdConfig from 'components/style/AntdConfig';
+import {getFromLocalStorage, saveToLocalStorage} from 'utils/localStorage';
+
+if (getFromLocalStorage('wsUrl') === null) {
+    saveToLocalStorage('wsUrl', 'ws://localhost:5000');
+}
 
 const root = createRoot(
     document.getElementById('root') as HTMLElement

@@ -1,6 +1,6 @@
 import GameModeMenu from 'components/GameModeMenu';
 import styled from 'styled-components';
-import {Button, Flex, Modal, Select} from 'antd';
+import {Button, Flex, Select} from 'antd';
 import {GameShootMode} from 'shared';
 import lang from 'language.json';
 import {useAppDispatch} from 'store';
@@ -17,7 +17,6 @@ const ThinDiv = styled.div`
 const Home = () => {
     const dispatch = useAppDispatch();
     const {gameShootMode} = useGameInfo();
-    const [{info}, contextHover] = Modal.useModal();
 
     const [historyModalOpen, setHistoryModalOpen] = useState(false);
     const [rulesModalOpen, setRulesModalOpen] = useState(false);
@@ -42,7 +41,7 @@ const Home = () => {
                     defaultValue={gameShootMode}
                     options={[
                         {value: GameShootMode.OneByOne, label: lang.shootMode.oneByOne},
-                        {value: GameShootMode.UntilMiss, label: lang.shootMode.untilMiss},
+                        {value: GameShootMode.UntilMiss, label: lang.shootMode.untilMiss}
                     ]}
                     onChange={mode => dispatch(setGameInfo({gameShootMode: mode}))}
                 />

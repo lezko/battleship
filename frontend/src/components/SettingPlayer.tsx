@@ -30,7 +30,7 @@ const SettingPlayer = () => {
     const dispatch = useAppDispatch();
 
     let nextBtnText;
-    if (gameMode === GameMode.OnePlayer) {
+    if (gameMode === GameMode.OnePlayer || gameMode === GameMode.OnlineGame) {
         nextBtnText = lang.startGame;
     } else {
         if (status === GameStatus.SettingFirstPlayer) {
