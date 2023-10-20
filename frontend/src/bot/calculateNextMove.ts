@@ -1,7 +1,4 @@
-import {BOARD_SIZE, Board} from 'core/types/Board';
-import {Point} from 'core/types/Ship';
-import {CellState} from 'core/types/CellState';
-import {random} from 'core/bot/random';
+import { Board, BOARD_SIZE, CellState, Point, rand } from 'shared';
 
 const RANDOM_POSITION_ATTEMPT_THRESHOLD = 20;
 
@@ -73,7 +70,7 @@ export function calculateNextMove(board: Board): Point {
     let c = 0;
     while (true) {
         c++;
-        const randomPos = {row: random(0, BOARD_SIZE), col: random(0, BOARD_SIZE)};
+        const randomPos = {row: rand(0, BOARD_SIZE), col: rand(0, BOARD_SIZE)};
         if (board[randomPos.row][randomPos.col] === CellState.Default) {
             return randomPos;
         }

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import {ReactNode} from 'react';
 import {MIN_CELL_SIZE} from 'components/Board';
-import {BOARD_SIZE} from 'core/types/Board';
+import {BOARD_SIZE} from 'shared';
 
 const StyledGrid = styled.div`
   display: grid;

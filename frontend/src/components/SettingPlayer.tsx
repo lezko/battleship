@@ -1,21 +1,15 @@
 import {resetGame, setPlayerName, setShips, useGameInfo} from 'store/gameInfoSlice';
 import {GameStatus, setGameStatus, useGameStatus} from 'store/gameStatusSlice';
-import {Player} from 'core/types/Player';
+import {BOARD_SIZE, GameMode, Player, Point, Ship, shipsTotal} from 'shared';
+import {checkCanPlaceShipWithOtherShips, getRemainingShipsParams} from 'utils/shipUtils';
 import {useAppDispatch} from 'store';
 import lang from 'language.json';
 import Board from 'components/Board';
-import {
-    checkCanPlaceShipWithOtherShips,
-    generateRandomShipArrangement,
-    normalizeShipPosition
-} from 'core/bot/generateRandomShipArrangement';
-import {GameMode} from 'core/types/GameMode';
+import {generateRandomShipArrangement, normalizeShipPosition} from 'bot/generateRandomShipArrangement';
 import {Button, Flex, Input} from 'antd';
 import styled from 'styled-components';
-import {getRemainingShipsParams, Point, Ship, shipsTotal} from 'core/types/Ship';
 import ShipSet from 'components/style/ShipSet';
 import {useState} from 'react';
-import {BOARD_SIZE} from 'core/types/Board';
 
 const id = String(Math.random());
 const MAX_WIDTH = 500;

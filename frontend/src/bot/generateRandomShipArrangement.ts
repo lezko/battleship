@@ -1,6 +1,5 @@
-import {Point, Ship, shipParameters, ShipPosition} from 'core/types/Ship';
-import {BOARD_SIZE} from 'core/types/Board';
-import {random} from 'core/bot/random';
+import {Point, Ship, shipParameters, ShipPosition, BOARD_SIZE, rand} from 'shared';
+import {checkCanPlaceShip, fillRange} from 'utils/shipUtils';
 
 const RANDOM_POSITION_ATTEMPT_THRESHOLD = 50;
 
@@ -11,36 +10,6 @@ for (const size of Object.keys(shipParameters).map(Number)) {
     }
     shipSizes.sort((a, b) => b - a);
 }
-
-export function checkCanPlaceShipWithOtherShips(p: ShipPosition, otherShips: Ship[]) {
-    const field: boolean[][] = Array.from(Array(BOARD_SIZE), () => Array(BOARD_SIZE).fill(false));
-    for (const ship of otherShips) {
-        fillRange(ship.position, field);
-    }
-    return checkCanPlaceShip(p, field);
-}
-
-export function checkCanPlaceShip(p: ShipPosition, field: boolean[][]) {
-    for (let i = p.start.row - 1; i <= p.end.row + 1; i++) {
-        for (let j = p.start.col - 1; j <= p.end.col + 1; j++) {
-            if ((0 <= i && i < BOARD_SIZE) && (0 <= j && i < BOARD_SIZE)) {
-                if (field[i][j]) {
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
-
-export function fillRange(p: ShipPosition, field: boolean[][]) {
-    for (let i = p.start.row; i <= p.end.row; i++) {
-        for (let j = p.start.col; j <= p.end.col; j++) {
-            field[i][j] = true;
-        }
-    }
-}
-
 export function generateRandomShipArrangement(): Ship[] {
     const field: boolean[][] = Array.from(Array(BOARD_SIZE), () => Array(BOARD_SIZE).fill(false));
 
@@ -104,7 +73,7 @@ export function generateRandomShipArrangement(): Ship[] {
                 break;
             }
 
-            const point: Point = {row: random(0, BOARD_SIZE), col: random(0, BOARD_SIZE)};
+            const point: Point = {row: rand(0, BOARD_SIZE), col: rand(0, BOARD_SIZE)};
             const ship = tryPlaceShip(s, point);
             if (ship !== null) {
                 ships.push(ship);

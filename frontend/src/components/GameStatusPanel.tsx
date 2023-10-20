@@ -1,14 +1,12 @@
-import {Player} from 'core/types/Player';
+import {Player, GameMode, GameShootMode} from 'shared';
 import {FC, useState} from 'react';
 import {Button, Flex} from 'antd';
 import {resetGame, useGameInfo} from 'store/gameInfoSlice';
 import lang from 'language.json';
 import {useAppDispatch} from 'store';
 import {GameStatus, setGameStatus} from 'store/gameStatusSlice';
-import {GameMode} from 'core/types/GameMode';
 import {computerName} from 'components/game/OnePlayerGame';
 import RulesModal from 'components/RulesModal';
-import {GameShootMode} from 'core/types/GameShootMode';
 import styled from 'styled-components';
 
 interface GameStatusPanelProps {

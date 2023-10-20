@@ -1,6 +1,6 @@
-import {GameMode} from 'core/types/GameMode';
-import {GameShootMode} from 'core/types/GameShootMode';
-import {Player} from 'core/types/Player';
+import {GameMode} from 'shared/src/types/GameMode';
+import {GameShootMode} from 'shared/src/types/GameShootMode';
+import {Player} from 'shared/src/types/Player';
 import {getFromLocalStorage, saveToLocalStorage} from 'utils/localStorage';
 
 const historyLocalStorageName = 'history';

@@ -1,14 +1,6 @@
-import {GameMode} from 'core/types/GameMode';
-import {GameShootMode} from 'core/types/GameShootMode';
-import {Board} from 'core/types/Board';
-import {Ship} from 'core/types/Ship';
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {combineInitialStateWithSavedState, useAppSelector} from 'store/index';
-import {Player} from 'core/types/Player';
-import {generateBoard} from 'core/generateBoard';
-import {random} from 'core/bot/random';
-import {Simulate} from 'react-dom/test-utils';
-import play = Simulate.play;
+import {GameMode, GameShootMode, Board, Ship, Player, generateBoard, rand} from 'shared';
 
 export const gameInfoSliceName = 'gameInfo';
 export interface GameInfoState {
@@ -27,7 +19,7 @@ const initialState: GameInfoState = {
     playerNames: ['', ''],
     boards: [generateBoard(), generateBoard()],
     ships: [[], []],
-    currentPlayer: random(0, 2),
+    currentPlayer: rand(0, 2),
     finishedEarly: false,
 };
 
@@ -47,13 +39,13 @@ export const gameInfoSlice = createSlice({
         setPlayerName(state, action: PayloadAction<{ playerName: string, player: Player; }>) {
             state.playerNames[action.payload.player] = action.payload.playerName;
         },
-        resetInfo(state) {
+        resetInfo() {
             return  {...initialState};
         },
         resetGame(state) {
             state.boards = initialState.boards;
             state.ships = initialState.ships;
-            state.currentPlayer = random(0, 2);
+            state.currentPlayer = rand(0, 2);
             state.finishedEarly = false;
         },
     }

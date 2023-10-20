@@ -1,22 +1,19 @@
 import {Fragment, useEffect, useRef, useState} from 'react';
-import {OfflineGame} from 'core/game/OfflineGame';
-import {getAliveShipsParams, Point} from 'core/types/Ship';
+import {CellState, Game, GameShootMode, Player, Point} from 'shared';
 import Board from 'components/Board';
-import {Player} from 'core/types/Player';
-import {calculateNextMove} from 'core/bot/calculateNextMove';
+import {calculateNextMove} from 'bot/calculateNextMove';
 import {setBoard, setGameInfo, setShips, useGameInfo} from 'store/gameInfoSlice';
 import {useAppDispatch} from 'store';
 import {clone} from 'utils/clone';
-import {GameShootMode} from 'core/types/GameShootMode';
-import {CellState} from 'core/types/CellState';
 import {Modal} from 'antd';
 import GameStatusPanel from 'components/GameStatusPanel';
 import lang from 'language.json';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faRobot} from '@fortawesome/free-solid-svg-icons';
-import {getHistory, saveHistory} from 'core/types/History';
+import {getHistory, saveHistory} from 'types/History';
 import TwoBoardGrid from 'components/layout/TwoBoardGrid';
 import ShipSet from 'components/style/ShipSet';
+import {getAliveShipsParams} from 'utils/shipUtils';
 
 export const computerName = <>{lang.computer} <FontAwesomeIcon icon={faRobot} /></>;
 
@@ -26,7 +23,7 @@ const OnePlayerGame = () => {
 
     const {ships, boards, currentPlayer, gameMode, gameShootMode, finishedEarly, playerNames} = useGameInfo();
     const dispatch = useAppDispatch();
-    const [game, setGame] = useState(new OfflineGame(clone(ships), clone(boards)));
+    const [game, setGame] = useState<Game>(new Game(clone(ships), clone(boards)));
     const timerRef = useRef<any>();
 
     async function makeBotMove() {
@@ -36,8 +33,8 @@ const OnePlayerGame = () => {
             // artificial delay to make game feel more natural
             await new Promise<void>(resolve => {
                 timerRef.current = setTimeout(() => {
-                    dispatch(setBoard({board: game.getBoardCopy(player), player: player}));
-                    dispatch(setShips({ships: game.getShipsCopy(player), player: player}));
+                    dispatch(setBoard({board: clone(game.getBoard(player)), player: player}));
+                    dispatch(setShips({ships: clone(game.getShips(player)), player: player}));
                     resolve();
                 }, 1000);
             });
@@ -63,8 +60,8 @@ const OnePlayerGame = () => {
             return;
         }
         game.makeMove(p, player);
-        dispatch(setBoard({board: game.getBoardCopy(bot), player: bot}));
-        dispatch(setShips({ships: game.getShipsCopy(bot), player: bot}));
+        dispatch(setBoard({board: clone(game.getBoard(bot)), player: bot}));
+        dispatch(setShips({ships: clone(game.getShips(bot)), player: bot}));
 
         if (gameShootMode === GameShootMode.OneByOne || game.getBoard(bot)[p.row][p.col] === CellState.Miss) {
             dispatch(setGameInfo({currentPlayer: bot}));

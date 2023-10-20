@@ -1,7 +1,7 @@
 import GameModeMenu from 'components/GameModeMenu';
 import styled from 'styled-components';
 import {Button, Flex, Modal, Select} from 'antd';
-import {GameShootMode} from 'core/types/GameShootMode';
+import {GameShootMode} from 'shared';
 import lang from 'language.json';
 import {useAppDispatch} from 'store';
 import {setGameInfo, useGameInfo} from 'store/gameInfoSlice';

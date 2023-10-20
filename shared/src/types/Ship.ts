@@ -1,4 +1,4 @@
-import {clone} from 'utils/clone';
+import {BOARD_SIZE} from '../types/Board';
 
 export interface Point {
     row: number;
@@ -39,25 +39,4 @@ export function getSunkShipsCount(ships: Ship[]) {
         }
         return n;
     }, 0);
-}
-
-export function getAliveShipsParams(ships: Ship[]): ShipParameters {
-    const result: ShipParameters = {};
-    for (const s of ships) {
-        if (s.decksHit < s.size) {
-            if (!(s.size in result)) {
-                result[s.size] = 0;
-            }
-            result[s.size]++;
-        }
-    }
-    return result;
-}
-
-export function getRemainingShipsParams(ships: Ship[]): ShipParameters {
-    const result = clone(shipParameters);
-    for (const ship of ships) {
-        result[ship.size]--;
-    }
-    return result;
 }

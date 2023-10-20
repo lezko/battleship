@@ -1,9 +1,7 @@
-import {getSunkShipsCount, Point, Ship, shipsTotal} from 'core/types/Ship';
-import {CellState} from 'core/types/CellState';
-import {Board, BOARD_SIZE} from 'core/types/Board';
-import {Player} from 'core/types/Player';
-import {getOpponent} from 'core/getOpponent';
-import {clone} from 'utils/clone';
+import {Board, BOARD_SIZE} from './types/Board';
+import {getSunkShipsCount, Point, Ship, shipsTotal} from './types/Ship';
+import {CellState} from './types/CellState';
+import {getOpponent, Player} from './types/Player';
 
 function markShipSunk(board: Board, ship: Ship) {
     for (let i = ship.position.start.row - 1; i <= ship.position.end.row + 1; i++) {
@@ -20,7 +18,7 @@ function markShipSunk(board: Board, ship: Ship) {
     }
 }
 
-export class OfflineGame {
+export class Game {
 
     private readonly ships: [Ship[], Ship[]];
     private readonly boards: [Board, Board];
@@ -77,16 +75,8 @@ export class OfflineGame {
         return this.boards[player];
     }
 
-    public getBoardCopy(player: Player) {
-        return clone(this.boards[player]);
-    }
-
     public getShips(player: Player) {
         return this.ships[player];
-    }
-
-    public getShipsCopy(player: Player) {
-        return clone(this.ships[player]);
     }
 
     public getShipsSunk(player: Player) {

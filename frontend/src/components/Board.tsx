@@ -1,11 +1,8 @@
-import {BOARD_SIZE} from 'core/types/Board';
 import {FC} from 'react';
 import styled, {useTheme} from 'styled-components';
-import {CellState} from 'core/types/CellState';
 import {AppTheme} from 'AppTheme';
-import {Player} from 'core/types/Player';
 import {useGameInfo} from 'store/gameInfoSlice';
-import {Point} from 'core/types/Ship';
+import {BOARD_SIZE, CellState, Player, Point} from 'shared';
 import lang from 'language.json';
 import {GameStatus, useGameStatus} from 'store/gameStatusSlice';
 
@@ -98,7 +95,7 @@ export const Dot = styled.div`
 
 // todo memoise
 const Board: FC<BoardProps> = ({player, onClick, shipsVisible, canMakeMove, markedCell}) => {
-    const {ships, boards, currentPlayer, finishedEarly} = useGameInfo();
+    const {ships, boards} = useGameInfo();
     const {status} = useGameStatus();
     const board = boards[player];
 
@@ -139,7 +136,7 @@ const Board: FC<BoardProps> = ({player, onClick, shipsVisible, canMakeMove, mark
         <StyledBoard
             $borderColor={(canMakeMove && !settingPlayer) ? theme.color.currentPlayerBoardBorder : theme.color.boardBorder}
         >
-            {shipField.map((row, i) => row.map((col, j) => {
+            {shipField.map((row, i) => row.map((_, j) => {
                     let cell: CellState | null = null;
                     let symbol;
                     if (i > 0 && j > 0) {

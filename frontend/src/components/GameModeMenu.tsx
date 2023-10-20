@@ -1,4 +1,4 @@
-import {GameMode} from 'core/types/GameMode';
+import {GameMode} from 'shared';
 import lang from 'language.json';
 import styled from 'styled-components';
 import {useAppDispatch} from 'store';

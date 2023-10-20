@@ -1,7 +1,7 @@
 import ShipCount from 'components/ShipCount';
 import {Flex} from 'antd';
-import {ShipParameters} from 'core/types/Ship';
 import {FC} from 'react';
+import { ShipParameters } from 'shared';
 
 interface ShipSetProps {
     shipParams: ShipParameters;

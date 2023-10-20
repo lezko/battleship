@@ -1,10 +1,8 @@
-import {Button, Flex, Modal} from 'antd';
+import {Button, Modal} from 'antd';
 import {FC, useState} from 'react';
-import {getHistory, HistoryItem, saveHistory} from 'core/types/History';
-import {GameMode} from 'core/types/GameMode';
+import {getHistory, HistoryItem, saveHistory} from 'types/History';
+import {GameMode, GameShootMode, Player} from 'shared';
 import {computerName} from 'components/game/OnePlayerGame';
-import {Player} from 'core/types/Player';
-import {GameShootMode} from 'core/types/GameShootMode';
 import lang from 'language.json';
 import styled from 'styled-components';
 

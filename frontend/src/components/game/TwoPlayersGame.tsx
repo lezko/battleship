@@ -1,29 +1,25 @@
 import {useRef, useState} from 'react';
-import {OfflineGame} from 'core/game/OfflineGame';
-import {Player} from 'core/types/Player';
+import {CellState, Game, GameShootMode, getOpponent, Player, Point} from 'shared';
 import Board from 'components/Board';
-import {getAliveShipsParams, Point} from 'core/types/Ship';
-import {getOpponent} from 'core/getOpponent';
 import {setBoard, setGameInfo, setShips, useGameInfo} from 'store/gameInfoSlice';
 import {useAppDispatch} from 'store';
 import {clone} from 'utils/clone';
-import {GameShootMode} from 'core/types/GameShootMode';
-import {CellState} from 'core/types/CellState';
 import {Button, Flex, Modal} from 'antd';
 import GameStatusPanel from 'components/GameStatusPanel';
 import lang from 'language.json';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faEye, faEyeSlash} from '@fortawesome/free-solid-svg-icons';
-import {getHistory, saveHistory} from 'core/types/History';
+import {getHistory, saveHistory} from 'types/History';
 import TwoBoardGrid from 'components/layout/TwoBoardGrid';
 import ShipSet from 'components/style/ShipSet';
+import {getAliveShipsParams} from 'utils/shipUtils';
 
 const SHOW_SHIPS_DELAY = 3;
 
 const TwoPlayersGame = () => {
     const {ships, boards, currentPlayer, finishedEarly, gameMode, gameShootMode, playerNames} = useGameInfo();
     const dispatch = useAppDispatch();
-    const [game, setGame] = useState(new OfflineGame(clone(ships), clone(boards)));
+    const [game, setGame] = useState<Game>(new Game(clone(ships), clone(boards)));
 
     const showShipsText = <>{lang.showShips} <FontAwesomeIcon icon={faEye} /></>;
     const hideShipsText = <>{lang.hideShips} <FontAwesomeIcon icon={faEyeSlash} /></>;
@@ -41,8 +37,8 @@ const TwoPlayersGame = () => {
         game.makeMove(p, player);
         const opponent = getOpponent(player);
 
-        dispatch(setBoard({board: game.getBoardCopy(opponent), player: opponent}));
-        dispatch(setShips({ships: game.getShipsCopy(opponent), player: opponent}));
+        dispatch(setBoard({board: clone(game.getBoard(opponent)), player: opponent}));
+        dispatch(setShips({ships: clone(game.getShips(opponent)), player: opponent}));
 
         if (gameShootMode === GameShootMode.OneByOne || game.getBoard(opponent)[p.row][p.col] === CellState.Miss) {
             dispatch(setGameInfo({currentPlayer: opponent}));
